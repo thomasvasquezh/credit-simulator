@@ -3,6 +3,7 @@ package com.thomas.creditsimulator.simulation.api;
 
 import com.thomas.creditsimulator.simulation.api.request.CreateSimulationRequest;
 import com.thomas.creditsimulator.simulation.api.response.SimulationResponse;
+import com.thomas.creditsimulator.simulation.api.response.SimulationScheduleResponse;
 import com.thomas.creditsimulator.simulation.application.SimulationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,11 @@ public class SimulationController {
         return ResponseEntity.ok(simulation);
     }
 
+    @GetMapping("/{id}/schedule")
+    public ResponseEntity<SimulationScheduleResponse> getSimulationSchedule(@PathVariable Long id) {
+        SimulationScheduleResponse response = simulationService.getSimulationSchedule(id);
+        return ResponseEntity.ok(response);
     }
+
+}
 

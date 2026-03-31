@@ -6,8 +6,11 @@ import com.thomas.creditsimulator.product.domain.Product;
 import com.thomas.creditsimulator.product.domain.ProductStatus;
 import com.thomas.creditsimulator.product.infrastructure.ProductRepository;
 import com.thomas.creditsimulator.simulation.api.SimulationMapper;
+import com.thomas.creditsimulator.simulation.api.response.InstallmentResponse;
+import com.thomas.creditsimulator.simulation.api.response.SimulationScheduleResponse;
 import com.thomas.creditsimulator.simulation.application.calculator.CalculationResult;
 import com.thomas.creditsimulator.simulation.application.calculator.LoanCalculator;
+import com.thomas.creditsimulator.simulation.application.calculator.ScheduleCalculator;
 import com.thomas.creditsimulator.simulation.infrastructure.SimulationRepository;
 import com.thomas.creditsimulator.simulation.api.request.CreateSimulationRequest;
 import com.thomas.creditsimulator.simulation.api.response.SimulationResponse;
@@ -27,6 +30,7 @@ public class SimulationService {
     private final ProductRepository productRepository;
     private final LoanCalculator loanCalculator;
     private final SimulationMapper simulationMapper;
+    private final ScheduleCalculator scheduleCalculator;
 
     public SimulationResponse createSimulation(CreateSimulationRequest request){
 
@@ -105,6 +109,22 @@ public class SimulationService {
             throw new BusinessRuleException( "Requested term must be between " + product.getMinTermMonths() +
                     " and " + product.getMaxTermMonths() + " months");
         }
+    }
+
+    public SimulationScheduleResponse getSimulationSchedule(Long id){
+        Simulation simulation = simulationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Simulation not found with ID: " + id));
+
+        List<InstallmentResponse> installments =scheduleCalculator.generateSchedule(simulation);
+
+        return new SimulationScheduleResponse(
+                simulation.getId(),
+                simulation.getAmount(),
+                simulation.getTermMonths(),
+                simulation.getInterestRate(),
+                simulation.getMonthlyPayment(),
+                installments
+        );
     }
 
 }
